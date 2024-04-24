@@ -1,10 +1,19 @@
 import { Router } from "express";
 
+import auth from "./app/middlewares/auth";
+
+import sessions from "./app/controllers/SessionsController";
 import customers from "./app/controllers/CustomersController";
 import contacts from "./app/controllers/ContactsController";
 import users from "./app/controllers/UsersController";
 
 const routes = new Router();
+
+// Sessions
+routes.post("/sessions", sessions.create);
+
+// Controla o acesso
+routes.use(auth);
 
 // Customers
 routes.get("/customers", customers.index);
