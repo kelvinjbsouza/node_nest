@@ -99,10 +99,9 @@ class UsersController {
     if (!user) {
       return res.status(404).json({ error: "Resource nor found." });
     }
+    const { id, name, email, createdAt, updatedAt } = user;
 
-    // console.log("GET :: /customers/:id ", customer);
-
-    return res.json(user);
+    return res.json({ id, name, email, createdAt, updatedAt });
   }
 
   // Cria um novo User
@@ -136,33 +135,49 @@ class UsersController {
     const schema = Yup.object().shape({
       name: Yup.string(),
       email: Yup.string().email(),
-      status: Yup.string().uppercase(),
+      oldPassword: Yup.string().min(8),
+      password: Yup.string()
+        .min(8)
+        .when("oldPassword", (oldPassword, field) =>
+          oldPassword ? field.required() : field
+        ),
+      passwordConfirmation: Yup.string().when("password", (password, field) =>
+        password ? field.required().oneOf([Yup.ref("password")]) : field
+      ),
     });
 
     if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: "Error on validate schema" });
+      return res.status(400).json({ error: "Error on validate schema." });
     }
 
-    const customer = await User.findByPk(req.params.id);
+    const user = await User.findByPk(req.params.id);
 
-    if (!customer) {
-      return res.status(404).json({ error: "Resource nor found." });
+    if (!user) {
+      return res.status(404).json();
     }
 
-    await customer.update(req.body);
+    const { oldPassword } = req.body;
 
-    return res.json(customer);
+    if (oldPassword && !(await user.checkPassword(oldPassword))) {
+      return res.status(401).json({ error: "User password not match." });
+    }
+
+    const { id, name, email, createdAt, updatedAt } = await user.update(
+      req.body
+    );
+
+    return res.status(201).json({ id, name, email, createdAt, updatedAt });
   }
 
   // Exclui um User
   async destroy(req, res) {
-    const customer = await User.findByPk(req.params.id);
+    const user = await User.findByPk(req.params.id);
 
-    if (!customer) {
+    if (!user) {
       return res.status(404).json({ error: "Resource nor found." });
     }
 
-    await customer.destroy();
+    await user.destroy();
 
     return res.json();
   }
