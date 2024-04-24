@@ -6,7 +6,7 @@ import Customer from "../models/Customer";
 import Contact from "../models/Contact";
 
 class CustomersController {
-  // Listagem dos Customers
+  // Listagem dos Customers asdasdasd
   async index(req, res) {
     const {
       name,
