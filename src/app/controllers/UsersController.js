@@ -3,6 +3,7 @@ import { Op } from "sequelize";
 import { parseISO } from "date-fns";
 
 import User from "../models/User";
+import Mail from "../../lib/Mail";
 
 class UsersController {
   async index(req, res) {
@@ -135,6 +136,12 @@ class UsersController {
       createdAt,
       updatedAt,
     } = await User.create(req.body);
+
+    Mail.send({
+      to: email,
+      subject: "Bem-vindo(a)",
+      text: `Olá ${name}, bem-vindo(a) ao nosso sistema`,
+    });
 
     return res
       .status(201)
