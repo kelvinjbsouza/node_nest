@@ -1,3 +1,4 @@
+import "dotenv/config";
 // Background Jobs
 import Queue from "./lib/Queue";
 
